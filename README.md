@@ -8,6 +8,7 @@
 - ✅ **Quiz** — trắc nghiệm nghĩa từ, sinh câu hỏi tự động từ bộ từ vựng.
 - 📖 **Đọc hiểu** — đoạn văn tiếng Anh theo ngữ cảnh PMP + câu hỏi.
 - 📊 **Theo dõi tiến độ** — số từ đã học, số lần ôn hôm nay, chuỗi ngày (streak).
+- ⬆️ **Nhập nội dung** — tự đẩy từ vựng + bài đọc bằng Markdown (dán text hoặc chọn file `.md`).
 
 Hoạt động **hoàn toàn offline** sau lần tải đầu, cài được lên màn hình chính (PWA).
 
@@ -23,10 +24,11 @@ npm test           # chạy test
 
 ## Thêm nội dung học
 
-Nội dung là file JSON tĩnh trong `public/data/` — không cần code:
+Mở tab **Nhập** trong app → bấm **Tải template** để lấy mẫu Markdown (`public/templates/content-template.md`), điền nội dung của bạn theo mẫu, rồi dán lại hoặc chọn file `.md`. Nội dung lưu vào máy (IndexedDB) và dùng ngay ở cả Flashcard/Quiz/Đọc hiểu. File JSON trong `public/data/` chỉ là dữ liệu demo ban đầu.
 
-- Từ vựng: `public/data/vocabulary.json`
-- Bài đọc: `public/data/readings.json`
+## Deploy
+
+Push lên nhánh `main` → GitHub Actions tự build và deploy lên GitHub Pages (bật Pages với Source = *GitHub Actions*). Xem [CLAUDE.md](./CLAUDE.md#deploy).
 
 ## Tech stack
 
