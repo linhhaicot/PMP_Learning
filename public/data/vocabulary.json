@@ -1,0 +1,52 @@
+[
+  {
+    "id": "v-stakeholder",
+    "term": "Stakeholder",
+    "definition": "An individual, group, or organization that may affect, be affected by, or perceive itself to be affected by a decision, activity, or outcome of a project.",
+    "translation": "Các bên liên quan",
+    "example": "The project manager identified every stakeholder before drafting the communications plan.",
+    "partOfSpeech": "noun",
+    "domain": "People",
+    "tags": ["initiating", "communication"]
+  },
+  {
+    "id": "v-baseline",
+    "term": "Baseline",
+    "definition": "The approved version of a work product (scope, schedule, or cost) used as a basis for comparison to actual results.",
+    "translation": "Đường cơ sở / mốc chuẩn",
+    "example": "Any change to the cost baseline must go through integrated change control.",
+    "partOfSpeech": "noun",
+    "domain": "Process",
+    "tags": ["planning", "monitoring"]
+  },
+  {
+    "id": "v-contingency-reserve",
+    "term": "Contingency Reserve",
+    "definition": "Budget or time set aside to handle identified risks (known-unknowns) that may occur during the project.",
+    "translation": "Dự phòng rủi ro đã biết",
+    "example": "The contingency reserve covered the schedule slip caused by the identified vendor risk.",
+    "partOfSpeech": "noun",
+    "domain": "Process",
+    "tags": ["risk", "planning"]
+  },
+  {
+    "id": "v-progressive-elaboration",
+    "term": "Progressive Elaboration",
+    "definition": "The iterative process of increasing the level of detail in a project management plan as more information becomes available.",
+    "translation": "Chi tiết hóa dần dần",
+    "example": "Through progressive elaboration, the rough estimate matured into a detailed schedule.",
+    "partOfSpeech": "noun",
+    "domain": "Process",
+    "tags": ["planning"]
+  },
+  {
+    "id": "v-servant-leadership",
+    "term": "Servant Leadership",
+    "definition": "A leadership style where the leader focuses on the growth and well-being of the team and removes impediments so the team can perform.",
+    "translation": "Lãnh đạo phục vụ",
+    "example": "Practicing servant leadership, the Scrum Master shielded the team from outside interruptions.",
+    "partOfSpeech": "noun",
+    "domain": "People",
+    "tags": ["agile", "leadership"]
+  }
+]

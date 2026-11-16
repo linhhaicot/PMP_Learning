@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+
+# Vite PWA generated artifacts
+dev-dist
+
+# TypeScript incremental build info
+*.tsbuildinfo

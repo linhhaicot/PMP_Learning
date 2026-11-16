@@ -1,0 +1,33 @@
+[
+  {
+    "id": "r-change-control",
+    "title": "Integrated Change Control",
+    "passage": "Midway through a construction project, the client requests an additional floor. The project manager does not immediately approve the work. Instead, she logs the request, evaluates its impact on scope, schedule, cost, and risk, and brings it to the change control board. Only after the board approves does the baseline get updated and the work begin. This disciplined approach prevents scope creep and keeps every change traceable.",
+    "questions": [
+      {
+        "id": "r-change-control-q1",
+        "prompt": "Why did the project manager NOT start the work immediately?",
+        "choices": [
+          "She needed the change to be assessed and formally approved first.",
+          "She did not have enough workers available.",
+          "The client had not paid for the project.",
+          "The weather was not suitable for construction."
+        ],
+        "answerIndex": 0,
+        "explanation": "Changes must go through integrated change control: assess impact, then obtain formal approval before updating the baseline."
+      },
+      {
+        "id": "r-change-control-q2",
+        "prompt": "What does updating the baseline accomplish?",
+        "choices": [
+          "It makes the approved change the new basis for comparison.",
+          "It cancels all previous work.",
+          "It removes the need for a change control board.",
+          "It automatically increases the budget."
+        ],
+        "answerIndex": 0,
+        "explanation": "The baseline is the approved reference; once a change is approved, the baseline is updated to reflect it."
+      }
+    ]
+  }
+]
