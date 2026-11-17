@@ -1,6 +1,7 @@
 # Vocabulary
 
 ## Stakeholder
+- priority: high
 - pos: noun
 - domain: People
 - translation: Các bên liên quan
@@ -9,6 +10,7 @@
 - tags: initiating, communication
 
 ## Baseline
+- priority: medium
 - pos: noun
 - domain: Process
 - translation: Đường cơ sở / mốc chuẩn

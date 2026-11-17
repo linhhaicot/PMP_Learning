@@ -100,7 +100,38 @@ body {
 }
 
 /* Flashcards -------------------------------------------------------------- */
-.progress-bar { text-align: center; color: var(--muted); margin-bottom: 0.75rem; }
+.progress-bar { color: var(--muted); }
+
+.fc-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.fc-badge { color: var(--muted); }
+
+.fc-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  align-items: stretch;
+}
+
+.fc-btn {
+  flex: 1;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--surface-2);
+  border-radius: 0.6rem;
+  padding: 0.7rem 0.5rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.fc-btn:disabled { opacity: 0.35; cursor: default; }
+.fc-btn--on { background: var(--primary); border-color: var(--primary); color: white; }
 
 .flashcard {
   width: 100%;

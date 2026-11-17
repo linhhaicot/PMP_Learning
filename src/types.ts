@@ -7,6 +7,13 @@ export type PmpDomain =
   | 'Business Environment'
   | 'General'
 
+/**
+ * Study priority. Drives flashcard ordering: `high` terms (core to PMP
+ * thinking) are studied first, `low` terms ("lướt" / skim) last. Absent =
+ * `medium`.
+ */
+export type Priority = 'high' | 'medium' | 'low'
+
 /** A single vocabulary / terminology card (static content, shipped as JSON). */
 export interface VocabCard {
   id: string
@@ -18,6 +25,8 @@ export interface VocabCard {
   example?: string
   partOfSpeech?: string
   domain?: PmpDomain
+  /** Study priority; defaults to `medium` when absent. */
+  priority?: Priority
   tags?: string[]
 }
 

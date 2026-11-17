@@ -7,6 +7,7 @@
     "example": "The project manager identified every stakeholder before drafting the communications plan.",
     "partOfSpeech": "noun",
     "domain": "People",
+    "priority": "high",
     "tags": ["initiating", "communication"]
   },
   {
@@ -27,6 +28,7 @@
     "example": "The contingency reserve covered the schedule slip caused by the identified vendor risk.",
     "partOfSpeech": "noun",
     "domain": "Process",
+    "priority": "high",
     "tags": ["risk", "planning"]
   },
   {
@@ -37,6 +39,7 @@
     "example": "Through progressive elaboration, the rough estimate matured into a detailed schedule.",
     "partOfSpeech": "noun",
     "domain": "Process",
+    "priority": "low",
     "tags": ["planning"]
   },
   {

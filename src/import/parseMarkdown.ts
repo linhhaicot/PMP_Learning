@@ -40,8 +40,9 @@ type DraftReading = Omit<Reading, 'questions'> & {
 
 type Section = 'vocab' | 'reading' | null
 
-const VOCAB_KEYS = new Set(['pos', 'domain', 'translation', 'definition', 'example', 'tags'])
+const VOCAB_KEYS = new Set(['pos', 'domain', 'translation', 'definition', 'example', 'tags', 'priority'])
 const DOMAINS: string[] = ['People', 'Process', 'Business Environment', 'General']
+const PRIORITIES: string[] = ['high', 'medium', 'low']
 
 export function parseMarkdown(input: string): ParseResult {
   const lines = input.split(/\r?\n/)
@@ -184,7 +185,7 @@ function applyVocabField(
   errors: ImportError[],
 ) {
   if (!VOCAB_KEYS.has(key)) {
-    errors.push({ line: lineNo, message: `Thuộc tính không hợp lệ "${key}" (nhận: definition, translation, example, pos, domain, tags).` })
+    errors.push({ line: lineNo, message: `Thuộc tính không hợp lệ "${key}" (nhận: definition, translation, example, pos, domain, priority, tags).` })
     return
   }
   switch (key) {
@@ -206,6 +207,10 @@ function applyVocabField(
     case 'domain':
       if (DOMAINS.includes(value)) card.domain = value as PmpDomain
       else errors.push({ line: lineNo, message: `domain "${value}" không hợp lệ (People, Process, Business Environment, General).` })
+      break
+    case 'priority':
+      if (PRIORITIES.includes(value)) card.priority = value as VocabCard['priority']
+      else errors.push({ line: lineNo, message: `priority "${value}" không hợp lệ (high, medium, low).` })
       break
   }
 }

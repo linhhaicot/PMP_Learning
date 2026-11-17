@@ -1,6 +1,7 @@
 import { db, type CardProgress } from './schema'
 import { schedule, INITIAL_SRS, type SrsState } from '../srs/sm2'
-import type { Grade } from '../types'
+import { orderStudyCards } from '../srs/queue'
+import type { Grade, VocabCard } from '../types'
 
 /**
  * Mutations that record learner activity. Every graded interaction funnels
@@ -56,15 +57,18 @@ async function bumpDaily(date: string, correct: boolean): Promise<void> {
   await db.daily.put(row)
 }
 
-/** Cards whose dueDate has passed (or that have never been reviewed). */
-export async function dueCardIds(
-  allIds: string[],
+/**
+ * Build an ordered flashcard study queue: due cards first, sorted by priority
+ * (high → low) then by SRS urgency. See srs/queue for the pure ordering rules.
+ */
+export async function buildStudyQueue(
+  cards: VocabCard[],
   now: number = Date.now(),
-): Promise<string[]> {
-  const progress = await db.progress.where('cardId').anyOf(allIds).toArray()
+): Promise<VocabCard[]> {
+  const progress = await db.progress
+    .where('cardId')
+    .anyOf(cards.map((c) => c.id))
+    .toArray()
   const byId = new Map<string, CardProgress>(progress.map((p) => [p.cardId, p]))
-  return allIds.filter((id) => {
-    const p = byId.get(id)
-    return !p || p.dueDate <= now
-  })
+  return orderStudyCards(cards, byId, now)
 }

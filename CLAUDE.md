@@ -34,6 +34,8 @@ npx vitest run src/srs/sm2.test.ts   # Chạy một file test
 
 **Thuật toán SRS** (`src/srs/sm2.ts`) là module **thuần, không I/O** (SM-2, kiểu Anki). Nhận `now` như tham số (không đọc đồng hồ) để test tất định. Mọi thay đổi lịch ôn tập đều ở đây và phải có test (`sm2.test.ts`) đi kèm.
 
+**Thứ tự học flashcard** (`src/srs/queue.ts`, thuần, có test `queue.test.ts`): sắp theo `priority` của từ (high → medium/khuyết → low "lướt"), trong cùng mức thì thẻ quá hạn nhiều nhất trước. `buildStudyQueue()` ở `reviews.ts` là wrapper lấy progress rồi gọi hàm thuần này. Flashcard còn có đọc to (`src/lib/speak.ts`, Web Speech API), vuốt trái/phải để chuyển (không chấm điểm), và chế độ tự động chuyển rảnh tay.
+
 **UI reactive**: các trang đọc nội dung qua `useLiveQuery` (dexie-react-hooks) → tự cập nhật ngay sau khi import hoặc ghi review, không truyền state thủ công. Trang nào trống nội dung sẽ hiện empty-state dẫn tới `/import`.
 
 ### Bố cục

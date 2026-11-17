@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Link } from 'react-router-dom'
-import type { Grade } from '../../types'
+import type { Grade, VocabCard } from '../../types'
 import { db } from '../../db/schema'
-import { dueCardIds, gradeFlashcard } from '../../db/reviews'
+import { buildStudyQueue, gradeFlashcard } from '../../db/reviews'
+import { speak, stopSpeaking, speechSupported } from '../../lib/speak'
 
 const GRADES: { grade: Grade; label: string; className: string }[] = [
   { grade: 'again', label: 'Lại', className: 'grade grade--again' },
@@ -12,42 +13,97 @@ const GRADES: { grade: Grade; label: string; className: string }[] = [
   { grade: 'easy', label: 'Dễ', className: 'grade grade--easy' },
 ]
 
+const PRIORITY_BADGE: Record<string, string> = {
+  high: '🔴 Ưu tiên cao',
+  medium: '🟡 Thường',
+  low: '⚪ Lướt',
+}
+
+// Auto-play timings (ms): reveal the definition, then advance.
+const REVEAL_DELAY = 2500
+const ADVANCE_DELAY = 6000
+const SWIPE_THRESHOLD = 50
+
 /**
- * Flashcard review session: builds a queue of due cards (SRS), flips to reveal
- * the definition, and grades via the 4-button scale that feeds back into SM-2.
- * Content comes live from Dexie, so an import mid-session is picked up next time
- * the queue is rebuilt.
+ * Flashcard review. The queue is ordered by priority (high → low) then SRS
+ * urgency (see buildStudyQueue), so core PMP terms come before skim terms.
+ *
+ * Interactions:
+ *  - Tap the card to reveal; grade with the 4 buttons (feeds SM-2).
+ *  - 🔊 reads the term aloud (and the definition once revealed).
+ *  - Swipe left/right (or the ‹ › buttons) to browse without grading.
+ *  - Auto-play reveals + advances hands-free, reading each card aloud.
  */
 export function FlashcardsPage() {
   const cards = useLiveQuery(() => db.vocab.toArray())
-  const [queue, setQueue] = useState<string[]>([])
+  const [queue, setQueue] = useState<VocabCard[]>([])
   const [pos, setPos] = useState(0)
   const [revealed, setRevealed] = useState(false)
+  const [auto, setAuto] = useState(false)
+  const touchStartX = useRef<number | null>(null)
 
-  // Build the due-queue once the cards have loaded.
+  // (Re)build the ordered queue whenever the content changes.
   useEffect(() => {
     if (!cards) return
     let active = true
-    dueCardIds(cards.map((c) => c.id)).then((due) => {
+    buildStudyQueue(cards).then((ordered) => {
       if (!active) return
-      setQueue(due.length ? due : cards.map((c) => c.id))
+      setQueue(ordered)
+      setPos(0)
+      setRevealed(false)
     })
     return () => {
       active = false
     }
   }, [cards])
 
-  const byId = useMemo(
-    () => new Map((cards ?? []).map((c) => [c.id, c])),
-    [cards],
-  )
-  const current = byId.get(queue[pos])
+  const current = queue[pos]
+
+  function go(delta: number) {
+    stopSpeaking()
+    setRevealed(false)
+    setPos((p) => Math.min(Math.max(p + delta, 0), queue.length))
+  }
 
   async function grade(g: Grade) {
     if (!current) return
+    stopSpeaking()
     await gradeFlashcard(current.id, g)
     setRevealed(false)
     setPos((p) => p + 1)
+  }
+
+  // Auto-play loop: one timer chain per card, torn down on card/mode change.
+  useEffect(() => {
+    if (!auto || !current) return
+    speak(current.term)
+    const t1 = setTimeout(() => {
+      setRevealed(true)
+      if (current.definition) speak(current.definition)
+    }, REVEAL_DELAY)
+    const t2 = setTimeout(() => {
+      setRevealed(false)
+      setPos((p) => p + 1)
+    }, ADVANCE_DELAY)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      stopSpeaking()
+    }
+  }, [auto, current])
+
+  // Stop speaking when leaving the screen.
+  useEffect(() => stopSpeaking, [])
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    touchStartX.current = null
+    if (dx < -SWIPE_THRESHOLD) go(1)
+    else if (dx > SWIPE_THRESHOLD) go(-1)
   }
 
   if (!cards) return <div className="page"><p>Đang tải…</p></div>
@@ -66,44 +122,64 @@ export function FlashcardsPage() {
     return (
       <div className="page">
         <h2>🎉 Xong phiên ôn!</h2>
-        <p className="muted">Bạn đã ôn hết các thẻ đến hạn hôm nay.</p>
+        <p className="muted">Bạn đã xem hết các thẻ trong phiên này.</p>
+        <button className="cta" onClick={() => { setAuto(false); go(-pos) }}>
+          Học lại từ đầu
+        </button>
       </div>
     )
   }
 
   return (
     <div className="page">
-      <div className="progress-bar">
-        {pos + 1} / {queue.length}
+      <div className="fc-topbar">
+        <span className="progress-bar">{pos + 1} / {queue.length}</span>
+        <span className="fc-badge">{PRIORITY_BADGE[current.priority ?? 'medium']}</span>
       </div>
 
       <button
         className="flashcard"
         onClick={() => setRevealed(true)}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
         aria-label="Lật thẻ"
       >
         <div className="flashcard__term">{current.term}</div>
         {revealed ? (
           <div className="flashcard__back">
             <p>{current.definition}</p>
-            {current.translation && (
-              <p className="muted">{current.translation}</p>
-            )}
+            {current.translation && <p className="muted">{current.translation}</p>}
             {current.example && <p className="example">“{current.example}”</p>}
           </div>
         ) : (
-          <div className="muted">Chạm để xem nghĩa</div>
+          <div className="muted">Chạm để xem nghĩa · vuốt để chuyển</div>
         )}
       </button>
 
-      {revealed && (
+      <div className="fc-controls">
+        <button className="fc-btn" onClick={() => go(-1)} disabled={pos === 0} aria-label="Thẻ trước">‹</button>
+        {speechSupported && (
+          <button
+            className="fc-btn"
+            onClick={() => speak(revealed && current.definition ? `${current.term}. ${current.definition}` : current.term)}
+            aria-label="Đọc to"
+          >
+            🔊 Nghe
+          </button>
+        )}
+        <button
+          className={'fc-btn' + (auto ? ' fc-btn--on' : '')}
+          onClick={() => setAuto((a) => !a)}
+        >
+          {auto ? '⏸ Dừng' : '▶️ Tự động'}
+        </button>
+        <button className="fc-btn" onClick={() => go(1)} aria-label="Thẻ sau">›</button>
+      </div>
+
+      {revealed && !auto && (
         <div className="grade-row">
           {GRADES.map((g) => (
-            <button
-              key={g.grade}
-              className={g.className}
-              onClick={() => grade(g.grade)}
-            >
+            <button key={g.grade} className={g.className} onClick={() => grade(g.grade)}>
               {g.label}
             </button>
           ))}
