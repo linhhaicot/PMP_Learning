@@ -102,6 +102,29 @@ body {
 /* Flashcards -------------------------------------------------------------- */
 .progress-bar { color: var(--muted); }
 
+.fc-filter {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.fc-chip {
+  flex: 1;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--surface-2);
+  border-radius: 999px;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.fc-chip--on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
 .fc-topbar {
   display: flex;
   justify-content: space-between;

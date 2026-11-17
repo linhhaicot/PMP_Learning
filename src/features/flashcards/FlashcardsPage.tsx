@@ -40,13 +40,17 @@ export function FlashcardsPage() {
   const [pos, setPos] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [auto, setAuto] = useState(false)
+  const [filter, setFilter] = useState<'all' | 'high'>('all')
   const touchStartX = useRef<number | null>(null)
 
-  // (Re)build the ordered queue whenever the content changes.
+  // (Re)build the ordered queue when the content or the filter changes.
   useEffect(() => {
     if (!cards) return
     let active = true
-    buildStudyQueue(cards).then((ordered) => {
+    const pool = filter === 'high'
+      ? cards.filter((c) => c.priority === 'high')
+      : cards
+    buildStudyQueue(pool).then((ordered) => {
       if (!active) return
       setQueue(ordered)
       setPos(0)
@@ -55,7 +59,7 @@ export function FlashcardsPage() {
     return () => {
       active = false
     }
-  }, [cards])
+  }, [cards, filter])
 
   const current = queue[pos]
 
@@ -118,9 +122,36 @@ export function FlashcardsPage() {
     )
   }
 
+  const filterBar = (
+    <div className="fc-filter">
+      <button
+        className={'fc-chip' + (filter === 'all' ? ' fc-chip--on' : '')}
+        onClick={() => setFilter('all')}
+      >
+        Tất cả
+      </button>
+      <button
+        className={'fc-chip' + (filter === 'high' ? ' fc-chip--on' : '')}
+        onClick={() => setFilter('high')}
+      >
+        🔴 Ưu tiên cao
+      </button>
+    </div>
+  )
+
+  if (!queue.length) {
+    return (
+      <div className="page">
+        {filterBar}
+        <p className="muted">Không có từ nào ở mức "Ưu tiên cao". Chọn "Tất cả" để học mọi từ.</p>
+      </div>
+    )
+  }
+
   if (!current) {
     return (
       <div className="page">
+        {filterBar}
         <h2>🎉 Xong phiên ôn!</h2>
         <p className="muted">Bạn đã xem hết các thẻ trong phiên này.</p>
         <button className="cta" onClick={() => { setAuto(false); go(-pos) }}>
@@ -132,6 +163,7 @@ export function FlashcardsPage() {
 
   return (
     <div className="page">
+      {filterBar}
       <div className="fc-topbar">
         <span className="progress-bar">{pos + 1} / {queue.length}</span>
         <span className="fc-badge">{PRIORITY_BADGE[current.priority ?? 'medium']}</span>
